@@ -11,6 +11,9 @@ class PressureFactor:
         for prop in self._properties:
             self._min = prop if prop.lower < self._min.lower else self._min
             self._max = prop if prop.upper > self._max.upper else self._max
+    @property
+    def unit(self) -> str:
+        return self._unit
 
     def factor(self, pressure: float) -> PressureFactorResult:
         log_press = math.log(pressure,10)
