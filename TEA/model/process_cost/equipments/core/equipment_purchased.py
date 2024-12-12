@@ -1,7 +1,6 @@
 import math
 from .equipment_properties import EquipmentProperties
 from .equipment_result import EquipmentCostResult
-from typing import Tuple
 
 class EquipmentPurchased():
     def __init__(self, properties) -> None:
@@ -19,7 +18,7 @@ class EquipmentPurchased():
                                    CEPCI= CEPCI,
                                    value= (CEPCI/397.0)*cp0)
     
-    def check_limites(self, size: float) -> Tuple[bool,str]:
+    def check_limites(self, size: float) -> tuple[bool,str]:
         if size >= self.properties.min_size and size <= self.properties.max_size:
             return (True, "OK")
         elif size < self.properties.min_size:

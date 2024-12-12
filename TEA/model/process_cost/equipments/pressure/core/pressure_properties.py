@@ -1,10 +1,7 @@
 import math
-from typing import Tuple
-from .pressure_factor_result import PressureFactorResult
-
 
 class PressureProperties:
-    def __init__(self, bounds: Tuple[float, float], parameters: Tuple[float, float, float]) -> None:
+    def __init__(self, bounds: tuple[float, float], parameters: tuple[float, float, float]) -> None:
         self._bounds = (bounds[0] if bounds[0] != None else 0.0,
                         bounds[1] if bounds[1] != None else math.inf)
         self._parameters = parameters
@@ -25,7 +22,7 @@ class PressureProperties:
     def parameters(self) -> tuple[float, float, float]:
         return self._parameters
     
-    def check_limites(self, pressure: float) -> Tuple[bool,str]:
+    def check_limites(self, pressure: float) -> tuple[bool,str]:
         if pressure >= self._bounds[0] and pressure <= self._bounds[1]:
             return (True, "OK")
         elif pressure < self._bounds[0]:

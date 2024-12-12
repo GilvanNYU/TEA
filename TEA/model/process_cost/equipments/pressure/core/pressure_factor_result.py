@@ -1,7 +1,7 @@
 from dataclasses import dataclass
-from typing import Tuple
+from typing import tuple
 
 @dataclass(frozen=True)
 class PressureFactorResult:
-    status: Tuple[bool, str]
+    status: tuple[bool, str]
     value: float

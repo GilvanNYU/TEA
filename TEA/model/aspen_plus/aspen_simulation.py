@@ -9,7 +9,7 @@ class AspenSimulation:
             self._aspen = win32.gencache.EnsureDispatch("Apwn.Document")
             msg = f"Opening Aspen Plus simulation - {self._file_path}"
             self._aspen.InitFromArchive2(self._file_path)
-            self.aspen.Visible = visibility
+            self._aspen.Visible = visibility
         except Exception as ex:
             print(msg)
             self.quit()
@@ -17,7 +17,7 @@ class AspenSimulation:
 
     def get_variable(self, path: str) -> float|int:
         try:
-            return self.aspen.Application.Tree.FindNode(path).Value
+            return self._aspen.Application.Tree.FindNode(path).Value
         except Exception as ex:
             print(f"Getting variable - {path}")
             self.quit()
@@ -25,18 +25,23 @@ class AspenSimulation:
     
     def set_variable(self, path: str, value: float|int) -> None:
         try:
-            self.aspen.Application.Tree.FindNode(path).Value = value
+            self._aspen.Application.Tree.FindNode(path).Value = value
         except Exception as ex:
             print(f"Setting variable - {path}")
             self.quit()
             raise ex 
         
-    def simulation_status(self) -> bool:
-        status = self.aspen.Application.Tree.FindNode("\\Data\\Results Summary\\Run-Status\\Output\\PER_ERROR").Elements.Count
-        if status == 0:
-            return True
+    def run_status(self) -> tuple[bool, str]:
+        num_msg = self._aspen.Application.Tree.FindNode("\\Data\\Results Summary\\Run-Status\\Output\\PER_ERROR").Elements.Count
+        if num_msg == 0:
+            return (True, "Results available")
         else:
-            return  False
+            msgs = []
+            for i in range(int(num_msg/4)):
+                type_msg = self._aspen.Application.Tree.FindNode(f"\\Data\\Results Summary\\Run-Status\\Output\\PER_ERROR\\{4*i + 2}").Value
+                blocks = self._aspen.Application.Tree.FindNode(f"\\Data\\Results Summary\\Run-Status\\Output\\PER_ERROR\\{4*i + 3}").Value
+                msgs.append(f"Results {type_msg}{blocks}")
+            return  (False, "\n".join(msgs))
         
     def run(self) -> None:
         self._aspen.Engine.Run2()
