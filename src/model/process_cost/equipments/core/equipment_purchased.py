@@ -15,7 +15,7 @@ class EquipmentPurchased():
         K1, K2, K3 = self.properties.data
         log_size = math.log(size,10)
         cp0 = 10**(K1 + K2*log_size + K3*(log_size**2))
-        return EquipmentCostResult(status= {'size': self.check_range(size)},
+        return EquipmentCostResult(status= {'size': self.check_limites(size)},
                                    CEPCI= CEPCI,
                                    value= (CEPCI/397.0)*cp0)
     
