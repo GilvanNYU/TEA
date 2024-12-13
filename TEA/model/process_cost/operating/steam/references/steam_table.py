@@ -393,26 +393,28 @@ class SteamTable:
                 [373.946,22.064,322,322,2084.3,2084.3,0,4.407,4.407,0]]
         
         units = ["°C", "kg/m3", "kg/m3", "kJ/kg", "kJ/kg", "kJ/kg", "kJ/kg-K", "kJ/kg-K", "kJ/kg-K"]
-        properties = ["Temperature", "Pressure", "Density_Liq", "Density_Vap", "Enthalpy_Liq", 
-                      "Enthalpy_Vap", "Latent_Heat", "Entropy_Liq", "Entropy_Vap", "Entropy_Diff"]
+        self._properties = ["temperature", "pressure", "density_liq", "density_vap", "enthalpy_liq", 
+                      "enthalpy_vap", "latent_Heat", "entropy_Liq", "entropy_Vap", "entropy_Diff"]
 
-        self._units = zip(properties, units)
-        self._df = pd.DataFrame(data, columns=properties)
+        self._units = list(zip(self._properties, units))
+        self._df = pd.DataFrame(data, columns=self._properties)
 
-    def units(self) -> tuple[tuple[str,str]]:
+    def units(self) -> list[tuple[str,str]]:
         return self._units
     
-    def properties_at(self, temp: float) -> SteamTableProperties:
+    def properties_at(self, value: float, property: str = "temperature") -> SteamTableProperties:
         def linear_interpolation(x: float, x0: float, y0: float, x1: float, y1: float) -> float:
             return y0 + (x - x0) * (y1 - y0) / (x1 - x0)
         
-        col_name = "Temperature"
-        if temp in self._df[col_name].values:
-            matched_row = self._df.loc[self._df[col_name] == temp]
+        if property not in self._properties:
+            raise ValueError("Invalid property.")
+
+        if value in self._df[property].values:
+            matched_row = self._df.loc[self._df[property] == value]
             return matched_row.iloc[0].to_dict()
 
-        lower_df = self._df[self._df[col_name] < temp]
-        upper_df = self._df[self._df[col_name] > temp]
+        lower_df = self._df[self._df[property] < value]
+        upper_df = self._df[self._df[property] > value]
 
         if lower_df.empty or upper_df.empty:
             raise ValueError("Value is outside the range of the data.")
@@ -423,9 +425,9 @@ class SteamTable:
         interpolated_data = {}
         for col in self._df.columns:
             if pd.api.types.is_numeric_dtype(self._df[col]):
-                interpolated_value = linear_interpolation(temp, 
-                                                          lower_row[col_name], lower_row[col], 
-                                                          upper_row[col_name], upper_row[col])
+                interpolated_value = linear_interpolation(value, 
+                                                          lower_row[property], lower_row[col], 
+                                                          upper_row[property], upper_row[col])
                 interpolated_data[col.lower()] = float(interpolated_value)
             else:
                 interpolated_data[col.lower()] = None
