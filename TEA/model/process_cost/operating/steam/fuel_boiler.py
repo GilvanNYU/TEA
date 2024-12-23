@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from references import SteamTable
+from .references import SteamTable
 
 @dataclass(frozen=True)
 class FuelInformation:
@@ -26,24 +26,20 @@ class FuelBoiler:
             duty (kW) - process heat duty\n
             return ($/h) - steam cost
         """
-        Qfuel = duty*self._dHfact*self._efficiency
-        cost = Qfuel/self._fuel.price
-        return cost*3600
+        return self.quantity(duty)*self._fuel.price
 
     def emissions(self, duty: float):
         """
             duty (kW) - process heat duty
-            return (kg/h) - CO2 emissions 
+            return (kgCO2/h) - CO2 emissions 
         """
-        Qfuel = duty*self._dHfact*self._efficiency
-        emissions = Qfuel*3.67*self._fuel.carbon_content/self._fuel.net_heating
-        return emissions*3600
+        return self.quantity(duty)*3.67*self._fuel.carbon_content
 
     def quantity(self, duty: float):
         """
             duty (kW) - process heat duty
             return (kg/h) - fuel flowrate
         """
-        Qfuel = duty*self._dHfact*self._efficiency
+        Qfuel = duty*self._dHfact/self._efficiency
         quantity = Qfuel/self._fuel.net_heating
         return quantity*3600
