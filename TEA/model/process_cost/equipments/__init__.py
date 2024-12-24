@@ -1,25 +1,25 @@
-from .blenders import BlenderCost
-from .centrifuges import CentrifugeCost
-from .compressors import CompressorCost
-from .conveyors import ConveyorCost
-from .crystallizers import CrystallizerCost
-from .drives import DriveCost
-from .dryers import DryerCost
-from .dust_collectors import DustCollectorCost
-from .evaporators import EvaporatorCost
-from .fans import FanCost
-from .filters import FilterCost
-from .furnaces import FurnanceCost
-from .heat_exchangers import HeatExchangerCost
-from .heaters import HeaterCost
-from .mixers import MixerCost
-from .packing import PackingCost
-from .pumps import PumpCost
-from .reactors import ReactorCost
-from .screens import ScreenCost
-from .tanks import TankCost
-from .trays import TrayCost
-from .towers import TowerCost
-from .turbines import TurbineCost
-from .vaporizers import VaporizerCost
-from .vessels import VesselCost
+from .blenders import BlenderCost, BlenderProperties
+from .centrifuges import CentrifugeCost, CentrifugeProperties
+from .compressors import CompressorCost, CompressorProperties
+from .conveyors import ConveyorCost, ConveyorProperties
+from .crystallizers import CrystallizerCost, CrystallizerProperties
+from .drives import DriveCost, DriveProperties
+from .dryers import DryerCost, DryerProperties
+from .dust_collectors import DustCollectorCost, DustCollectorProperties
+from .evaporators import EvaporatorCost, EvaporatorProperties
+from .fans import FanCost, FanProperties
+from .filters import FilterCost, FilterProperties
+from .furnaces import FurnanceCost, FurnanceProperties
+from .heat_exchangers import HeatExchangerCost, HeatExchangerProperties
+from .heaters import HeaterCost, HeaterProperties
+from .mixers import MixerCost, MixerProperties
+from .packing import PackingCost, PackingProperties
+from .pumps import PumpCost, PumpProperties
+from .reactors import ReactorCost, ReactorProperties
+from .screens import ScreenCost, ScreenProperties
+from .tanks import TankCost, TankProperties
+from .trays import TrayCost, TrayProperties
+from .towers import TowerCost, TowerProperties, TowerStructure
+from .turbines import TurbineCost, TurbineProperties
+from .vaporizers import VaporizerCost, VaporizerProperties
+from .vessels import VesselCost, VesselProperties, VesselStructure

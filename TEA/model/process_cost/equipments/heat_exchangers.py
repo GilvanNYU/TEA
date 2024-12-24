@@ -1,8 +1,13 @@
+from dataclasses import dataclass
 from enum import Enum
-from .core import EquipmentProperties, EquipmentPurchased, EquipmentCostResult
+from .core import EquipmentProperties, EquipmentPurchased, EquipmentCostResult, Equipment
 from .pressure import HeatExchangerPressure
 
-class HeatExchangerCost:
+@dataclass(frozen=True)
+class HeatExchangerProperties:
+    """
+    pressure (barg) - Operating pressure\n
+    """
     class Material(Enum):
         CarbonSteel = {'DoublePipe': 1.0, 'MultiplePipe': 1.0, 'FixedTube': 1.0, 'FloatingHead': 1.0, 'UTube': 1.0, 'Bayonet': 1.0, 'KettleReboiler': 1.0, 'ScrapedWall': 1.0, 'SpiralTube': 1.0,
                        'AirCooler': 1.0, 'FlatPlate': 1.0, 'SpiralPlate': 1.0, 'TeflonTube': 1.0}
@@ -23,8 +28,7 @@ class HeatExchangerCost:
                        'FlatPlate': 2.2, 'SpiralPlate': 2.2, 'TeflonTube': 1.0}
         Aluminium = {'AirCooler': 1.43}
 
-
-    class Type(Enum):
+    class Model(Enum):
         DoublePipe = { 'min_size': 1.0, 'max_size': 10.0, 'data': (3.3444, 0.2745, -0.0472), 'unit': 'm2', 'B1':1.74, 'B2': 1.55 }
         MultiplePipe = { 'min_size': 10.0, 'max_size': 100.0, 'data': (2.7652, 0.7282, 0.0783), 'unit': 'm2', 'B1':1.74, 'B2': 1.55 }
         FixedTube = { 'min_size': 10.0, 'max_size': 1000.0, 'data': (4.3247, -0.3030, 0.1634), 'unit': 'm2', 'B1':1.63, 'B2': 1.66 }
@@ -39,36 +43,52 @@ class HeatExchangerCost:
         FlatPlate = { 'min_size': 10.0, 'max_size': 1000.0, 'data': (4.6656, -0.1557, 0.1547), 'unit': 'm2', 'B1':0.96, 'B2': 1.21 }
         SpiralPlate = { 'min_size': 1.0, 'max_size': 100.0, 'data': (4.6561, -0.2947, 0.2207), 'unit': 'm2', 'B1':0.96, 'B2': 1.21 }
 
-    def __init__(self, type: Type, material: Material = Material.CarbonSteel, tube_only: bool = True) -> None:
-        if type.name not in material.value.keys():
-            raise Exception(f"Invalid material ({material.name}) for this equipment type ({type.name})")
-        self._type, self._material = type, material
-        self._pressure = HeatExchangerPressure(type.name, tube_only)
-        self._equipment= EquipmentPurchased(EquipmentProperties(data=type.value['data'],
-                                                                unit=type.value['unit'],
-                                                                min_size=type.value['min_size'],
-                                                                max_size=type.value['max_size']))
+    material: Material = Material.CarbonSteel
+    model: Model = Model.FloatingHead
+    tube_only: bool= True
+    pressure: float= 0.0
+
+
+class HeatExchangerCost(Equipment):
+
+    def __init__(self, properties: HeatExchangerProperties) -> None:
+        self._props = properties
+        self._pressure = HeatExchangerPressure(properties.model.name, properties.tube_only)
+        self._equipment= EquipmentPurchased(EquipmentProperties(data=properties.model.value['data'],
+                                                                unit=properties.model.value['unit'],
+                                                                min_size=properties.model.value['min_size'],
+                                                                max_size=properties.model.value['max_size']))
 
     def purchased(self, area: float, CEPCI: float = 397) -> EquipmentCostResult:
         """
-            area (m2) - area of heat exchanger\n
+            area (m2) - Area of heat exchanger\n
             CEPCI (-) - Chemical plant cost indexes\n
             return ($) - Purchased cost of equipment
         """
         return self._equipment.cost(area, CEPCI)        
 
-    def bare_module(self, area: float, pressure: float, CEPCI: float = 397) -> EquipmentCostResult:
+    def bare_module(self, area: float,CEPCI: float = 397) -> EquipmentCostResult:
         """
-            area (m2) - area of heat exchanger\n
-            pressure (barg) - Operating pressure\n
+            area (m2) - Area of heat exchanger\n
             CEPCI (-) - Chemical plant cost indexes\n
             return ($) - Bare module cost (Direct and indirect costs)
         """
-        Fm = self._material.value[self._type.name]
-        Fp = self._pressure.factor(pressure)
-        B1 = self._type.value['B1']
-        B2 = self._type.value['B1']
+        Fm = self._props.material.value[self._props.model.name]
+        Fp = self._pressure.factor(self._props.pressure)
+        B1 = self._props.model.value['B1']
+        B2 = self._props.model.value['B1']
         cp0 = self._equipment.cost(area, CEPCI)
         return EquipmentCostResult(status= {'size': cp0.status['size'], 'pressure': Fp.status},
                                    CEPCI= CEPCI,
                                    value= cp0.value*(B1 + B2*Fm*Fp.value))
+
+    def total_module(self, area: float, fraction: float = 0.18, CEPCI: float = 397) -> EquipmentCostResult:
+        """
+            area (m2) - Area of heat exchanger\n
+            CEPCI (-) - Chemical plant cost indexes\n
+            return ($) - Total module cost (Direct, indirect, fee and contingency costs)
+        """
+        bar_module = self.bare_module(area, CEPCI)
+        return EquipmentCostResult(status= bar_module.status,
+                                   CEPCI= CEPCI,
+                                   value= bar_module.value*(1 + fraction))

@@ -1,8 +1,13 @@
+from dataclasses import dataclass
 from enum import Enum
-from .core import EquipmentProperties, EquipmentPurchased, EquipmentCostResult
+from .core import EquipmentProperties, EquipmentPurchased, EquipmentCostResult, Equipment
 from .pressure import VaporizerPressure
 
-class VaporizerCost:
+@dataclass(frozen=True)
+class VaporizerProperties:
+    """
+    pressure (barg) - Operating pressure\n    
+    """
     class Material(Enum):
         CarbonSteel = {'InternalCoils': 3.04, 'JacketedVessels': 2.73}
         Copper = {'InternalCoils': 3.83, 'JacketedVessels': 3.45}
@@ -15,19 +20,22 @@ class VaporizerCost:
         Titanium = {'InternalCoils': 15.23, 'JacketedVessels': 13.78}
         TitaniumClad = {'InternalCoils': 10.66, 'JacketedVessels': 9.69}
 
-    class Type(Enum):
+    class Model(Enum):
         InternalCoils = { 'min_size': 1.0, 'max_size': 100.0, 'data': (4.0000, 0.4321, 0.1700), 'unit':'m3'}
         JacketedVessels = { 'min_size': 1.0, 'max_size': 100.0, 'data': (3.8751, 0.3328, 0.1901), 'unit':'m3'}
 
-    def __init__(self, type: Type, material: Material = Material.CarbonSteel) -> None:
-        if type.name not in material.value.keys():
-            raise Exception(f"Invalid material ({material.name}) for this equipment type ({type.name})")
-        self._type, self._material = type, material
+    material: Material = Material.CarbonSteel
+    model: Model = Model.JacketedVessels
+    pressure: float = 0.0
+
+class VaporizerCost(Equipment):
+    def __init__(self, properties: VaporizerProperties) -> None:
+        self._props = properties
         self._pressure = VaporizerPressure()           
-        self._equipment = EquipmentPurchased(EquipmentProperties(data=type.value['data'],
-                                                                 unit=type.value['unit'],
-                                                                 min_size=type.value['min_size'],
-                                                                 max_size=type.value['max_size']))
+        self._equipment = EquipmentPurchased(EquipmentProperties(data=properties.model.value['data'],
+                                                                 unit=properties.model.value['unit'],
+                                                                 min_size=properties.model.value['min_size'],
+                                                                 max_size=properties.model.value['max_size']))
 
     def purchased(self, volume: float, CEPCI: float = 397) -> EquipmentCostResult:
         """
@@ -37,16 +45,26 @@ class VaporizerCost:
         """
         return self._equipment.cost(volume, CEPCI)        
 
-    def bare_module(self, volume: float, pressure: float, CEPCI: float = 397) -> EquipmentCostResult:
+    def bare_module(self, volume: float, CEPCI: float = 397) -> EquipmentCostResult:
         """
             volume (m3) - Volume of vaporizer\n
-            pressure (barg) - Operating pressure\n
             CEPCI (-) - Chemical plant cost indexes\n
             return ($) - Bare module cost (Direct and indirect costs)
         """
-        FBM = self._material.value[self._type.name]
-        Fp = self._pressure.factor(pressure)
+        FBM = self._props.material.value[self._props.model.name]
+        Fp = self._pressure.factor(self._props.pressure)
         cp0 = self._equipment.cost(volume, CEPCI)
         return EquipmentCostResult(status= {'size': cp0.status['size'], 'pressure': Fp.status},
                                    CEPCI= CEPCI,
                                    value= cp0.value*FBM*Fp.value)
+
+    def total_module(self, volume: float, fraction: float = 0.18, CEPCI: float = 397) -> EquipmentCostResult:
+        """
+            volume (m3) - Volume of vaporizer\n
+            CEPCI (-) - Chemical plant cost indexes\n
+            return ($) - Total module cost (Direct, indirect, fee and contingency costs)
+        """
+        bar_module = self.bare_module(volume, CEPCI)
+        return EquipmentCostResult(status= bar_module.status,
+                                   CEPCI= CEPCI,
+                                   value= bar_module.value*(1 + fraction))
