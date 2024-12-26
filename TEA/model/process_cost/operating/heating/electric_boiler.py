@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from ..core.steam_table import SteamTable
 
 @dataclass(frozen=True)
-class ElectricityInformation:
+class ElectricityProperties:
     """
         price ($/kWh) - Electricity price\n
         grid_emssion (kgCO2/kWh) - electricity grid emission factor\n
@@ -11,7 +11,7 @@ class ElectricityInformation:
     grid_emissions: float
 
 class ElectricBoiler:
-    def __init__(self, water_temp: float, steam_temp: float, electricity: ElectricityInformation, efficiency: float):
+    def __init__(self, water_temp: float, steam_temp: float, electricity: ElectricityProperties, efficiency: float):
         table = SteamTable()
         self._feed_prop = table.properties_at(water_temp)
         self._steam_prop = table.properties_at(steam_temp)

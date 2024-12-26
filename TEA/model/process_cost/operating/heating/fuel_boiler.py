@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from ..core import SteamTable
 
 @dataclass(frozen=True)
-class FuelInformation:
+class FuelProperties:
     """
         price ($/kg) - fuel price\n
         carbon_content (-) - carbon content\n
@@ -13,7 +13,7 @@ class FuelInformation:
     net_heating: float
 
 class FuelBoiler:
-    def __init__(self, water_temp: float, steam_temp: float, fuel: FuelInformation, efficiency: float):
+    def __init__(self, water_temp: float, steam_temp: float, fuel: FuelProperties, efficiency: float):
         table = SteamTable()
         self._feed_prop = table.properties_at(water_temp)
         self._steam_prop = table.properties_at(steam_temp)
