@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from .references import SteamTable
+from ..core import SteamTable
 
 @dataclass(frozen=True)
 class FuelInformation:
