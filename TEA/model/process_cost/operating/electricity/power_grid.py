@@ -16,7 +16,7 @@ class PowerGrid:
     def cost(self, energy: float):
         """
             energy (kW) - electric energy\n
-            return ($/h) - steam cost
+            return ($/h) - electric cost
         """
         return energy*self._props.price
     
