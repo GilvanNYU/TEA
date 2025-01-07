@@ -5,7 +5,7 @@ from ..core import SteamTable
 class FuelProperties:
     """
         price ($/kg) - fuel price\n
-        carbon_content (-) - carbon content\n
+        carbon_content (%) - carbon content\n
         net_heating (kJ/kg) - net heating value
     """
     price: float
@@ -33,9 +33,9 @@ class FuelBoiler:
             duty (kW) - process heat duty
             return (kgCO2/h) - CO2 emissions 
         """
-        return self.quantity(duty)*3.67*self._fuel.carbon_content
+        return self.quantity(duty)*3.67*self._fuel.carbon_content/100
 
-    def quantity(self, duty: float):
+    def fuel(self, duty: float):
         """
             duty (kW) - process heat duty
             return (kg/h) - fuel flowrate
@@ -43,3 +43,10 @@ class FuelBoiler:
         Qfuel = duty*self._dHfact/self._efficiency
         quantity = Qfuel/self._fuel.net_heating
         return quantity*3600
+    
+    def steam(self, duty: float):
+        """
+            duty (kW) - process heat duty
+            return (kg/h) - steam flowrate
+        """
+        return duty/self._steam_prop["latent_Heat"]*3600

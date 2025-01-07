@@ -33,10 +33,17 @@ class ElectricBoiler:
         """
         return  self.quantity(duty)*self._props.grid_emissions
 
-    def quantity(self, duty: float):
+    def electricity(self, duty: float):
         """
             duty (kW) - process heat duty\n
             return (kW) - electricity usage
         """
         Qelec = duty*self._dHfact/self._efficiency
         return Qelec
+    
+    def steam(self, duty: float):
+        """
+            duty (kW) - process heat duty
+            return (kg/h) - steam flowrate
+        """
+        return duty/self._steam_prop["latent_Heat"]*3600
