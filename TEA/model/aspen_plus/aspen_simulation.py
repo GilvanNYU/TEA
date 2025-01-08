@@ -1,7 +1,21 @@
 import win32com.client as win32
 
+class AspenVariables:
+    def __init__(self, variables: dict[str,str], aspen: 'AspenSimulation'):
+        self._vars = variables
+        self._aspen = aspen
+
+    def getter(self, name: str) -> float|int:
+        return self._aspen.get_variable(self._vars[name])
+    
+    def setter(self, name: str, value: float|int) -> None:
+        self._aspen.set_variable(self._vars[name], value)
+
+
 class AspenSimulation:
-    def __init__(self, full_path: str, visibility=False):
+    def __init__(self, full_path: str, 
+                 variables: dict[str,str] = None, 
+                 visibility=False):
         self._file_path = full_path
         msg = ""
         try:
@@ -14,6 +28,11 @@ class AspenSimulation:
             print(msg)
             self.quit()
             raise ex
+        self._var = AspenVariables(variables, self) if variables != None else None
+
+    @property
+    def variables(self) -> AspenVariables:
+        return self._var
 
     def get_variable(self, path: str) -> float|int:
         try:
@@ -57,3 +76,6 @@ class AspenSimulation:
 
     def __del__(self) -> None:
         self.quit()
+
+
+
