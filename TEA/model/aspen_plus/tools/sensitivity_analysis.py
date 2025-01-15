@@ -4,7 +4,7 @@ from ..aspen_simulation import AspenSimulation
 
 @dataclass(frozen=True)
 class SensitivityAnalysisResults:
-    status: bool
+    status: tuple[bool, str]
     variables: dict[str, float|int]
     tracked: dict[str, float|int]
 
@@ -13,7 +13,7 @@ def sensitivity_analysis(aspen: AspenSimulation,
                          tracked_var: list[str],
                          reinitiate: bool = False) -> list[SensitivityAnalysisResults]:
     if reinitiate:
-        aspen.reinitiate()
+        aspen.engine.reinitiate()
         
     scenarios = []
     for variables in product(*[sensitivy_var[v] for v in sensitivy_var]):
@@ -24,14 +24,14 @@ def sensitivity_analysis(aspen: AspenSimulation,
     sensitivy = []
     for scenatio in scenarios:
         for var_name in scenatio:
-            aspen.variables.setter(var_name, scenatio[var_name])
+            aspen.variables[var_name] = scenatio[var_name]
             
         aspen.run()
-        status = aspen.run_status()
+        status = aspen.engine.run_status()
 
         tracked = {}
         for tracked_name in tracked_var:
-            tracked[tracked_name] = aspen.variables.getter(tracked_name)
+            tracked[tracked_name] = aspen.variables[tracked_name]
 
         sensitivy.append(
             SensitivityAnalysisResults(status=status,

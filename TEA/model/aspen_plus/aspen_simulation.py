@@ -17,7 +17,7 @@ class AspenSimulation:
         return self._var
 
     @property
-    def material_streams(self) ->AspenMaterialStream:
+    def streams(self) ->AspenMaterialStream:
         return self._material_streams
     
     def __del__(self) -> None:
