@@ -34,7 +34,7 @@ def sensitivity_analysis(aspen: AspenSimulation,
             tracked[tracked_name] = aspen.variables.getter(tracked_name)
 
         sensitivy.append(
-            SensitivityAnalysisResults(status=status[0],
+            SensitivityAnalysisResults(status=status,
                                        variables=scenatio,
                                        tracked=tracked))
     
