@@ -16,6 +16,8 @@ class PressureFactor:
         return self._unit
 
     def factor(self, pressure: float) -> PressureFactorResult:
+        if pressure == 0.0:
+            return PressureFactorResult(value=1, status=(True, "OK"))
         log_press = math.log(pressure,10)
         for prop in self._properties:
             status = prop.check_limites(pressure)

@@ -1,40 +1,29 @@
 from dataclasses import dataclass
 from ..core import SteamTable
 
-@dataclass(frozen=True)
-class CoolingWaterPumpSystem:
-    pressure_drop: float = 266.7 # kPa
-    efficiency: float = 0.75
 
 @dataclass(frozen=True)
-class CoolingWaterFanSystem:
-    specific_energy: float
-
-@dataclass(frozen=True)
-class CoolingWaterMakeup:
-    windage_losses: float
-    max_salt: float
-
-@dataclass(frozen=True)
-class CoolingWaterProperties:
+class CoolingTowerProperties:
     """
+        pressure_drop (kPag) - pressure drop\n
+        pump_efficiency (-) - pump efficincy\n
+        fan_specific_energy (kW/(m3/hr)) - specific electricity consumption of fans\n
+        blowdown (-) - blowdown fraction\n
         water_price ($/kg) - water price\n
-        windage_losses (-) - windage losses from mechanical draft towers (0.001 - 0.003)\n
-        max_salt - the maximum allowable salt concentration factor (default: 5)\n
-        electricity_price ($/kWh) - Electricity price\n
-        electricity_emissions (kgCO2/kWh) - electricity grid emission factor\n
+        electricity_price ($/kWh) - electricity price\n
+        grid_emissions (kgCO2/kWh) - electricity grid emission factor
     """
-    fan: CoolingWaterFanSystem
-    pump: CoolingWaterPumpSystem
-    makeup: CoolingWaterMakeup
+    pressure_drop: float = 266.7 # kPa
+    pump_efficiency: float = 0.75
+    fan_specific_energy: float= 0.066385246 # kW/(m3/hr)
+    blowdown: float = 0.013   
     water_price: float
-    chemical_price: float
     electricity_price: float
-    electricity_emissions: float
+    grid_emissions: float
 
 
 class CoolingWater:
-    def __init__(self, inlet_temp: float, outlet_temp: float, properties: CoolingWaterProperties):
+    def __init__(self, inlet_temp: float, outlet_temp: float, properties: CoolingTowerProperties):
         """
             inlet_temp (°C) - inlet temperature\n
             outlet_temp (°C) - outlet temperature\n
@@ -49,30 +38,44 @@ class CoolingWater:
     def cost(self, duty: float):
         """
             duty (kW) - process heat duty\n
-            return ($/h) - steam cost
+            return ($/h) - cooling water cost
         """
-        cw = self.quantity(duty)
-        evap = duty/self._average_prop['latent_Heat']*3600
-        windage = self._props.makeup.windage_losses*cw
-        blowdown = evap/(self._props.makeup.max_salt - 1) - windage
-        mkup = evap + windage + blowdown
-
-        pump = (cw/3600)/self._inlet_prop['density_liq']/self._props.pump.efficiency*self._props.pump.pressure_drop 
-        fan = cw*self._props.fan.specific_energy
-
-        return mkup*self._props.water_price + (pump + fan)*self._props.electricity_price
+        water = self.makeup(duty)*self._props.water_price 
+        electricity = self.electric_energy(duty)*self._props.electricity_price
+        
+        return water + electricity
 
     def emissions(self, duty: float):
         """
             duty (kW) - process heat duty
             return (kgCO2/h) - CO2 emissions 
         """
-        cw = self.quantity(duty)
-        pump = (cw/3600)/self._inlet_prop['density_liq']/self._props.pump.efficiency*self._props.pump.pressure_drop 
-        fan = cw*self._props.fan.specific_energy
-        return (pump + fan)*self._props.electricity_emissions
+        return self.electric_energy(duty)*self._props.grid_emissions
 
-    def quantity(self, duty: float):
+    def electric_energy(self, duty: float) -> float:
+        """
+            duty (kW) - process heat duty
+            return (kW) - eletric energy
+        """
+        fans = self.quantity(duty)*self._props.fan_specific_energy
+        pump = self.quantity(duty)*self._props.pressure_drop/(self._props.pump_efficiency*self._inlet_prop['density_liq'])
+        return fans + pump
+
+    def makeup(self, duty: float) -> float:
+        """
+            duty (kW) - process heat duty
+            return (kg/h) - makeup flowrate
+        """
+        return self.water_loss(duty) + self.quantity(duty)*self._props.blowdown
+    
+    def water_loss(self, duty: float) -> float:
+        """
+            duty (kW) - process heat duty
+            return (kg/h) - amount of water evaporated
+        """
+        return duty/self._average_prop['latent_Heat']*3600
+
+    def quantity(self, duty: float) -> float:
         """
             duty (kW) - process heat duty
             return (kg/h) - cooling water flowrate
