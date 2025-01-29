@@ -26,14 +26,14 @@ class FuelBoiler:
             duty (kW) - process heat duty\n
             return ($/h) - steam cost
         """
-        return self.quantity(duty)*self._fuel.price
+        return self.fuel(duty)*self._fuel.price
 
     def emissions(self, duty: float):
         """
             duty (kW) - process heat duty
             return (kgCO2/h) - CO2 emissions 
         """
-        return self.quantity(duty)*3.67*self._fuel.carbon_content/100
+        return self.fuel(duty)*3.67*self._fuel.carbon_content/100
 
     def fuel(self, duty: float):
         """

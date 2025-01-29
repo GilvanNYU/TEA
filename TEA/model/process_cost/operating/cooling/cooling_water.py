@@ -5,21 +5,21 @@ from ..core import SteamTable
 @dataclass(frozen=True)
 class CoolingTowerProperties:
     """
+        water_price ($/kg) - water price\n
+        electricity_price ($/kWh) - electricity price\n
+        grid_emissions (kgCO2/kWh) - electricity grid emission factor\n
         pressure_drop (kPag) - pressure drop\n
         pump_efficiency (-) - pump efficincy\n
         fan_specific_energy (kW/(m3/hr)) - specific electricity consumption of fans\n
         blowdown (-) - blowdown fraction\n
-        water_price ($/kg) - water price\n
-        electricity_price ($/kWh) - electricity price\n
-        grid_emissions (kgCO2/kWh) - electricity grid emission factor
     """
+    water_price: float
+    electricity_price: float
+    grid_emissions: float
     pressure_drop: float = 266.7 # kPa
     pump_efficiency: float = 0.75
     fan_specific_energy: float= 0.066385246 # kW/(m3/hr)
     blowdown: float = 0.013   
-    water_price: float
-    electricity_price: float
-    grid_emissions: float
 
 
 class CoolingWater:
@@ -57,8 +57,8 @@ class CoolingWater:
             duty (kW) - process heat duty
             return (kW) - eletric energy
         """
-        fans = self.quantity(duty)*self._props.fan_specific_energy
-        pump = self.quantity(duty)*self._props.pressure_drop/(self._props.pump_efficiency*self._inlet_prop['density_liq'])
+        fans = (self.water(duty)/self._inlet_prop['density_liq'])*self._props.fan_specific_energy
+        pump = (self.water(duty)/self._inlet_prop['density_liq']/3600)*self._props.pressure_drop/self._props.pump_efficiency
         return fans + pump
 
     def makeup(self, duty: float) -> float:
@@ -66,7 +66,7 @@ class CoolingWater:
             duty (kW) - process heat duty
             return (kg/h) - makeup flowrate
         """
-        return self.water_loss(duty) + self.quantity(duty)*self._props.blowdown
+        return self.water_loss(duty) + self.water(duty)*self._props.blowdown
     
     def water_loss(self, duty: float) -> float:
         """
@@ -75,7 +75,7 @@ class CoolingWater:
         """
         return duty/self._average_prop['latent_Heat']*3600
 
-    def quantity(self, duty: float) -> float:
+    def water(self, duty: float) -> float:
         """
             duty (kW) - process heat duty
             return (kg/h) - cooling water flowrate
