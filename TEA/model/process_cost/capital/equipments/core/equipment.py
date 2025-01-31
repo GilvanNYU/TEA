@@ -12,5 +12,5 @@ class Equipment(ABC):
         pass
 
     @abstractmethod
-    def total_module(self, size: float, fraction: float = 0.18, CEPCI: float = 397) -> EquipmentCostResult:
+    def total_module(self, size: float, fee: float = 0.18, CEPCI: float = 397) -> EquipmentCostResult:
         pass

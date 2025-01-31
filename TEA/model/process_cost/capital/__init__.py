@@ -1,1 +1,1 @@
-from .equipment_catalog import EquipmentCatalog, EquipmentDatasheet
+from .equipment_form import EquipmentForm
