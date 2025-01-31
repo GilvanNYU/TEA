@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 import math
 from enum import Enum
-from .core import EquipmentProperties, EquipmentPurchased, EquipmentCostResult, Equipment
+from .core import EquipmentProperties, EquipmentPurchased, EquipmentCostResult, EquipmentCost
 
 @dataclass(frozen=True)
 class TrayProperties:
@@ -23,7 +23,7 @@ class TrayProperties:
     model: Model = Model.Sieve
     num_trays: int = 10
 
-class TrayCost(Equipment):
+class TrayCost(EquipmentCost):
     def __init__(self, properties: TrayProperties) -> None:
         self._props = properties
         self._equipment = EquipmentPurchased(EquipmentProperties(data=properties.model.value['data'],

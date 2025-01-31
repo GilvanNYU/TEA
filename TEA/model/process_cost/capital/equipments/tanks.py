@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
-from .core import EquipmentProperties, EquipmentPurchased, EquipmentCostResult, Equipment
+from .core import EquipmentProperties, EquipmentPurchased, EquipmentCostResult, EquipmentCost
 from .pressure import TankPressure
 
 @dataclass(frozen=True)
@@ -25,7 +25,7 @@ class TankProperties:
     model: Model= Model.APIFixedRoof
     pressure: float = 0.0
 
-class TankCost(Equipment):
+class TankCost(EquipmentCost):
     def __init__(self, properties: TankProperties) -> None:
         self._props = properties
         self._pressure = TankPressure()

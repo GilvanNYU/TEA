@@ -1,6 +1,6 @@
 from enum import Enum
 from dataclasses import dataclass
-from .core import EquipmentProperties, EquipmentPurchased, EquipmentCostResult, Equipment
+from .core import EquipmentProperties, EquipmentPurchased, EquipmentCostResult, EquipmentCost
 
 @dataclass(frozen=True)
 class VesselStructure:
@@ -44,7 +44,7 @@ class VesselProperties:
                 return 1.0
             return Fp
 
-class VesselCost(Equipment):
+class VesselCost(EquipmentCost):
     def __init__(self, properties: VesselProperties) -> None:
         self._props = properties
         self._equipment = EquipmentPurchased(EquipmentProperties(data=properties.model.value['data'],

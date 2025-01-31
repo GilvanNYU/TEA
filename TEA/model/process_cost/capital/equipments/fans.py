@@ -1,6 +1,6 @@
 from enum import Enum
 from .pressure import FanPressure
-from .core import EquipmentProperties, EquipmentPurchased, EquipmentCostResult, Equipment
+from .core import EquipmentProperties, EquipmentPurchased, EquipmentCostResult, EquipmentCost
 
 class FanProperties:
     """
@@ -22,7 +22,7 @@ class FanProperties:
     model: Model = Model.CentrifugalRadial
     rise_pressure: float = 0.0
 
-class FanCost(Equipment):
+class FanCost(EquipmentCost):
     def __init__(self, properties: FanProperties) -> None:
         self._props = properties
         self._pressure: FanPressure = FanPressure(properties.model.name)

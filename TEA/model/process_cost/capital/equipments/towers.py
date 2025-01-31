@@ -1,6 +1,6 @@
 from enum import Enum
 from dataclasses import dataclass
-from .core import EquipmentProperties, EquipmentPurchased, EquipmentCostResult, Equipment
+from .core import EquipmentProperties, EquipmentPurchased, EquipmentCostResult, EquipmentCost
 
 @dataclass(frozen=True)
 class TowerStructure:
@@ -43,7 +43,7 @@ class TowerProperties:
                 return 1.0
             return Fp
 
-class TowerCost(Equipment):
+class TowerCost(EquipmentCost):
     def __init__(self, properties: TowerProperties) -> None:
         self._props = properties
         self._equipment = EquipmentPurchased(EquipmentProperties(data=properties.model.value['data'],

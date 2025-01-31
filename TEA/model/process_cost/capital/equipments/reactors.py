@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
-from .core import EquipmentProperties, EquipmentPurchased, EquipmentCostResult, Equipment
+from .core import EquipmentProperties, EquipmentPurchased, EquipmentCostResult, EquipmentCost
 
 @dataclass(frozen=True)
 class ReactorProperties:
@@ -15,7 +15,7 @@ class ReactorProperties:
     
     model: Model = Model.Autoclave
 
-class ReactorCost(Equipment):
+class ReactorCost(EquipmentCost):
 
     def __init__(self, properties: ReactorProperties) -> None:
         self._props = properties

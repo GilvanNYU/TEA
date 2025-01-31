@@ -1,8 +1,8 @@
 from dataclasses import dataclass
-from .equipments.core import Equipment
+from .equipments.core import EquipmentCost
 
 @dataclass(frozen=True)
 class EquipmentForm:
     name: str
     size: float
-    model: Equipment
+    model: EquipmentCost

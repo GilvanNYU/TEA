@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
-from .core import EquipmentProperties, EquipmentPurchased, EquipmentCostResult, Equipment
+from .core import EquipmentProperties, EquipmentPurchased, EquipmentCostResult, EquipmentCost
 
 @dataclass(frozen=True)
 class CrystallizerProperties:
@@ -9,7 +9,7 @@ class CrystallizerProperties:
     
     model: Model= Model.Batch
 
-class CrystallizerCost(Equipment):
+class CrystallizerCost(EquipmentCost):
     def __init__(self, properties: CrystallizerProperties) -> None:
         self._props = properties
         self._equipment = EquipmentPurchased(EquipmentProperties(data=properties.model.value['data'],

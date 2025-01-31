@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from .equipment_result import EquipmentCostResult
 
-class Equipment(ABC):
+class EquipmentCost(ABC):
 
     @abstractmethod
     def purchased(self, size: float, CEPCI: float = 397) -> EquipmentCostResult:

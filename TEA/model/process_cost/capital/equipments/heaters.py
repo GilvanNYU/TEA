@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
-from .core import EquipmentProperties, EquipmentPurchased, EquipmentCostResult, Equipment
+from .core import EquipmentProperties, EquipmentPurchased, EquipmentCostResult, EquipmentCost
 from .pressure import HeaterPressure
 
 @dataclass(frozen=True)
@@ -19,7 +19,7 @@ class HeaterProperties:
     pressure: float = 0
     superheat: float = 0
 
-class HeaterCost(Equipment):
+class HeaterCost(EquipmentCost):
     def __init__(self, properties: HeaterProperties) -> None:       
         self._props = properties
         self._pressure = HeaterPressure(properties.model.name)

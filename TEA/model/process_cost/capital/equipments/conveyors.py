@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
-from .core import EquipmentProperties, EquipmentPurchased, EquipmentCostResult, Equipment
+from .core import EquipmentProperties, EquipmentPurchased, EquipmentCostResult, EquipmentCost
 
 @dataclass(frozen=True)
 class ConveyorProperties:
@@ -12,7 +12,7 @@ class ConveyorProperties:
     
     model: Model = Model.AutoBatch
 
-class ConveyorCost(Equipment):
+class ConveyorCost(EquipmentCost):
     def __init__(self, properties: ConveyorProperties) -> None:
         self._props = properties
         self._equipment = EquipmentPurchased(EquipmentProperties(data=properties.model.value['data'],

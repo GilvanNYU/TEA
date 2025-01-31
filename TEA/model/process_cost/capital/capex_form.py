@@ -1,10 +1,11 @@
 from .equipments.core.equipment_result import EquipmentCostResult
 from .unit_operation_form import UnitOperationForm
+from .utils import purchased, bare_module, total_module
 
 class CapexForm:
-    def __init__(self, CEPCI: float, fee: float= 0.18):
+    def __init__(self, CEPCI: float, contingency: float= 0.18):
         self._CEPCI = CEPCI
-        self._fee = fee
+        self._contingency = contingency
         self._units: dict[str, UnitOperationForm] = {}
 
     def new_unit(self, name: str) -> None:
@@ -17,40 +18,12 @@ class CapexForm:
         return self._units[name]
     
     def purchased(self) -> dict[str, dict[str, list[EquipmentCostResult]]]:
-        cost = {}
-        for unit_name, unit in self._units.items():
-            cost[unit_name] = {}
-            for operations in unit.unit_operations():
-                operation_name, operation_equips = operations
-                cost[unit_name][operation_name] = []
-                for form in operation_equips:
-                    cost[unit_name][operation_name].append(form.model.purchased(form.size,
-                                                                                self._CEPCI))
-        return cost
+        return purchased(self._units, self._CEPCI)
+
 
     def bare_module(self) -> dict[str, dict[str, list[EquipmentCostResult]]]:
-        cost = {}
-        for unit_name, unit in self._units.items():
-            cost[unit_name] = {}
-            for operations in unit.unit_operations():
-                operation_name, operation_equips = operations
-                cost[unit_name][operation_name] = []
-                for form in operation_equips:
-                    cost[unit_name][operation_name].append(form.model.bare_module(form.size,
-                                                                                  self._CEPCI))
-        return cost
-    
-       
+        return bare_module(self._units, self._CEPCI)
 
+       
     def total_module(self) -> dict[str, dict[str, list[EquipmentCostResult]]]:
-        cost = {}
-        for unit_name, unit in self._units.items():
-            cost[unit_name] = {}
-            for operations in unit.unit_operations():
-                operation_name, operation_equips = operations
-                cost[unit_name][operation_name] = []
-                for form in operation_equips:
-                    cost[unit_name][operation_name].append(form.model.bare_module(form.size,
-                                                                                  self._fee,
-                                                                                  self._CEPCI))
-        return cost
+        return total_module(self._units, self._CEPCI, self._contingency)
