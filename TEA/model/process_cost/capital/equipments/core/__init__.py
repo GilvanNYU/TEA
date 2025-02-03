@@ -1,4 +1,4 @@
 from .equipment_purchased import EquipmentPurchased
-from .equipment_result import EquipmentCostResult
+from .equipment_cost_result import EquipmentCostResult
 from .equipment_properties import EquipmentProperties
 from .equipment_cost import EquipmentCost

@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from .equipment_result import EquipmentCostResult
+from .equipment_cost_result import EquipmentCostResult
 
 class EquipmentCost(ABC):
 

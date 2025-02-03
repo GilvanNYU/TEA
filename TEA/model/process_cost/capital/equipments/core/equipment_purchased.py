@@ -1,6 +1,6 @@
 import math
 from .equipment_properties import EquipmentProperties
-from .equipment_result import EquipmentCostResult
+from .equipment_cost_result import EquipmentCostResult
 
 class EquipmentPurchased():
     def __init__(self, properties) -> None:

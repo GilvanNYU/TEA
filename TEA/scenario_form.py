@@ -1,13 +1,13 @@
-from .model.process_cost.capital.capex_form import CapexForm
+from .model.process_cost.capital.capital_cost_model import CapitalCostModel
 
 class ScenarioForm:
     def __init__(self, CEPCI: float, contingency: float= 0.18):
         self._CEPCI = CEPCI
         self._contingency = contingency
-        self._capex = CapexForm(CEPCI, contingency)
+        self._capex = CapitalCostModel(CEPCI, contingency)
 
     @property
-    def capex(self) -> CapexForm:
+    def capital_cost(self) -> CapitalCostModel:
         return self._capex
     
     @property

@@ -1,1 +1,1 @@
-from .equipment_form import EquipmentForm
+from .core.equipment_data import EquipmentData
